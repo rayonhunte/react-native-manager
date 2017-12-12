@@ -15,26 +15,44 @@ export const userLoginSuccess = (user) =>{
   }
 }
 
+export const loginUserFail = (error) =>{
+  return {
+    type: 'LOGIN_USER_FAIL',
+    error
+  }
+}
+
+export const startLoginUser = () =>{
+  return {
+    type: 'LOGIN_USER',
+  }
+}
+
+
 export const loginUser = ({email, password}) => {
   return (dispatch) => {
+    dispatch(startLoginUser())
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then((user) => {
         //user valid
-        console.log(user);
         dispatch(userLoginSuccess(user))
       })
-      .catch(() => {
+      .catch((error) => {
         // no such user
+        console.log(error)
         firebase
           .auth()
           .createUserWithEmailAndPassword(email, password)
-          .then(() => {
+          .then((user) => {
             //user created
+            dispatch(userLoginSuccess(user))
           })
-          .catch(() => {
+          .catch((error) => {
             // create user error
+            console.log(error)
+            dispatch(loginUserFail(error.message));
           })
       });
   }
